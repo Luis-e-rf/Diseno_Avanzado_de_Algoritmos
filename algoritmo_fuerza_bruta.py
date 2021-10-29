@@ -8,9 +8,6 @@ def calcular_distancia(A, B):
     distancia = math.sqrt((B[0]-A[0])**2 + (A[1]-B[1])**2)
     return distancia
 
-
-print(calcular_distancia((1, 0), (0, 0)))
-
 # escribir una funcion que compare todos los puntos entre si
 # puntos = [(2, 3), (7, 2), (1, 0), (-4, 8), (-3, -9), (0, 0), (-1, -5)]
 cordX = [random.randint(-500, 500) for i in range(3000)]
