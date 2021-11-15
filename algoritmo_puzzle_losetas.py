@@ -2,92 +2,88 @@ from simpleai.search import astar, SearchProblem
 
 #Busqueda en Profundidad
 
-GOAL = '''1-2-3
+META = '''1-2-3
 4-5-6
 7-8-e'''
 
-INITIAL = '''4-5-1
+INICIO = '''4-5-1
 8-3-7
 e-6-2'''
 
 
-def list_to_string(list_):
+def list_string(list_):
     return '\n'.join(['-'.join(row) for row in list_])
 
 
-def string_to_list(string_):
+def string_list(string_):
     return [row.split('-') for row in string_.split('\n')]
 
 
-def find_location(rows, element_to_find):
-    '''Encuentra la direccion de la ficha buscada, devuelve la tupla fila, columna'''
+def encontrar_lugar(rows, element_to_find):
+    '''Encuentra la direccion de la ficha buscada y devuelve fila, columna'''
     for ir, row in enumerate(rows):
         for ic, element in enumerate(row):
             if element == element_to_find:
                 return ir, ic
 
 
-#Se guarda la posicion fnal de cada pieza, para no tener que recalcular en cada ciclo
-goal_positions = {}
-rows_goal = string_to_list(GOAL)
-for number in '12345678e':
-    goal_positions[number] = find_location(rows_goal, number)
+#Se guarda la posicion final de cada pieza, para no tener que recalcular en cada ciclo
+posiciones_meta = {}
+rows_meta = string_list(META)
+for num in '12345678e':
+    posiciones_meta[num] = encontrar_lugar(rows_meta, num)
 
 
-class EigthPuzzleProblem(SearchProblem):
-    def actions(self, state):
-        '''Retorna una lista de las piezas que podemso mover a un espacio vacio'''
-        rows = string_to_list(state)
-        row_e, col_e = find_location(rows, 'e')
+class Puzzle(SearchProblem):
+    def actions(self, estado):
+        '''Retorna una lista de las piezas que podemos mover a un espacio vacio'''
+        rows = string_list(estado)
+        row_e, col_e = encontrar_lugar(rows, 'e')
 
-        actions = []
+        acciones = []
         if row_e > 0:
-            actions.append(rows[row_e - 1][col_e])
+            acciones.append(rows[row_e - 1][col_e])
         if row_e < 2:
-            actions.append(rows[row_e + 1][col_e])
+            acciones.append(rows[row_e + 1][col_e])
         if col_e > 0:
-            actions.append(rows[row_e][col_e - 1])
+            acciones.append(rows[row_e][col_e - 1])
         if col_e < 2:
-            actions.append(rows[row_e][col_e + 1])
+            acciones.append(rows[row_e][col_e + 1])
 
-        return actions
+        return acciones
 
-    def result(self, state, action):
-        '''retorna el estado resultante despues de mover una ficha a un espacio vacio.
-           (La accion parameter contiene la pieza a mover)
-        '''
-        rows = string_to_list(state)
-        row_e, col_e = find_location(rows, 'e')
-        row_n, col_n = find_location(rows, action)
+    def result(self, estado, accion):
+        '''retorna el estado resultante despues de mover una ficha a un espacio vacio. El parametro accion contiene la pieza a mover'''
+        rows = string_list(estado)
+        row_e, col_e = encontrar_lugar(rows, 'e')
+        row_n, col_n = encontrar_lugar(rows, accion)
 
         rows[row_e][col_e], rows[row_n][col_n] = rows[row_n][col_n], rows[row_e][col_e]
 
-        return list_to_string(rows)
+        return list_string(rows)
 
-    def is_goal(self, state):
+    def is_goal(self, estado):
         '''Devuelve true si el estado actual es el estado deseado'''
-        return state == GOAL
+        return estado == META
      
-    def heuristic(self, state):
-        '''Retorna una estimacion de la distancia al estado deseado
-           Usando la distancia manhatan 
-        '''
-        rows = string_to_list(state)
+    def heuristic(self, estado):
+        '''Retorna una estimacion de la distancia al estado deseado usando la distancia manhatan'''
+        rows = string_list(estado)
 
-        distance = 0
+        distancia = 0
 
-        for number in '12345678e':
-            row_n, col_n = find_location(rows, number)
-            row_n_goal, col_n_goal = goal_positions[number]
+        for num in '12345678e':
+            row_n, col_n = encontrar_lugar(rows, num)
+            row_n_goal, col_n_goal = posiciones_meta[num]
 
-            distance += abs(row_n - row_n_goal) + abs(col_n - col_n_goal)
+            distancia += abs(row_n - row_n_goal) + abs(col_n - col_n_goal)
 
-        return distance
+        return distancia
 
 
-result = astar(EigthPuzzleProblem(INITIAL))
+result = astar(Puzzle(INICIO))
 
 
-for action, state in result.path():
-    print ('Mover el numero ', action)
-    print (state)
+for accion, estado in result.path():
+    print ('Mueve el numero ', accion)
+    print (estado)
